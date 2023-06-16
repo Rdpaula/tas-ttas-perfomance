@@ -18,8 +18,8 @@ func criticalSection(lock Lock, iterations int) {
 }
 
 func main() {
-	if len(os.Args) < 4 {
-		fmt.Println("Uso: go run main.go <quantidade-threads> <vezes-execucao> <critical-load>")
+	if len(os.Args) < 5 {
+		fmt.Println("Uso: go run main.go <quantidade-threads> <vezes-execucao> <critical-load> <lock-type>")
 		os.Exit(1)
 	}
 
@@ -41,9 +41,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	lockType := os.Args[4]
+
 	value = 0
 
-	lock := &TTASLock{}
+	var lock Lock
+
+	if lockType == "TAS" {
+		lock = &TASLock{}
+	} else if lockType == "TTAS" {
+		lock = &TTASLock{}
+	} else {
+		fmt.Println("Lock nao especificado")
+	}
 
 	var wg sync.WaitGroup
 	wg.Add(threads)
