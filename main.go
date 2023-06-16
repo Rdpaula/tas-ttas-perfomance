@@ -47,12 +47,14 @@ func main() {
 
 	var lock Lock
 
-	if lockType == "TAS" {
+	switch lockType {
+	case "TAS":
 		lock = &TASLock{}
-	} else if lockType == "TTAS" {
+	case "TTAS":
 		lock = &TTASLock{}
-	} else {
+	default:
 		fmt.Println("Lock nao especificado")
+		os.Exit(1)
 	}
 
 	var wg sync.WaitGroup
