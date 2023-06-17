@@ -1,35 +1,41 @@
 package main
 
 import (
-	"fmt"
+	csvEncoder "encoding/csv"
+	"log"
 	"os"
 	"strconv"
-	"sync"
-	"encoding/csv"
 )
 
-func main(){
-	csv := [][]interface{
-		{"num_threads", "executions", "critical_load", "lock_type, time"},
+func main() {
+	file, err := os.Create("csv_table.csv")
+	if err != nil {
+		log.Fatalln("failed to open file", err)
 	}
+	defer file.Close()
+	csvWriter := csvEncoder.NewWriter(file)
+	defer csvWriter.Flush()
 
-	threads := []int{10, 100, 1000}
-	executions := []int{10, 100, 1000}
-	criticalLoad := []int{1, 100, 10000}
+	csv := [][]string{
+		{"num_threads", "executions", "critical_load", "lock_type", "time"},
+	}
+	threads := []int{1, 10, 100}
+	executions := []int{1, 10, 100}
+	criticalLoad := []int{1, 10, 100}
 	lockType := []string{"TAS", "TTAS"}
 
-	for thread,indThread in threads{
-		for exec,indExec in executions{
-			for load,indLoad in criticalLoad{
-				for lock,indLock in lockType{
+	for _, thread := range threads {
+		for _, exec := range executions {
+			for _, load := range criticalLoad {
+				for _, lock := range lockType {
 					resultTime := Run(thread, exec, load, lock)
-					row := []interface{thread, exec, load, lock, resultTime}
+					row := []string{strconv.Itoa(thread), strconv.Itoa(exec), strconv.Itoa(load), lock, resultTime.String()}
 					csv = append(csv, row)
 				}
 			}
 		}
 	}
-	csvWriter := csv.NewWriter("csvTable")
-	defer csvWriter.flush()
+
+	defer csvWriter.Flush()
 	csvWriter.WriteAll(csv)
 }

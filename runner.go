@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"sync"
+	"time"
 )
 
 var value int
@@ -17,8 +17,9 @@ func criticalSection(lock Lock, iterations int) {
 	}
 }
 
-func Run(threads int, executions int, criticalLoad int, lockType string) int{
+func Run(threads int, executions int, criticalLoad int, lockType string) time.Duration {
 	value = 0
+	initialTime := time.Now()
 
 	var lock Lock
 
@@ -47,5 +48,5 @@ func Run(threads int, executions int, criticalLoad int, lockType string) int{
 	wg.Wait()
 
 	fmt.Println("Valor final:", value)
-	return value
+	return time.Since(initialTime)
 }
