@@ -1,75 +1,41 @@
 package main
 
 import (
-	"fmt"
+	csvEncoder "encoding/csv"
+	"log"
 	"os"
 	"strconv"
-	"sync"
 )
 
-var value int
-
-func criticalSection(lock Lock, iterations int) {
-	for i := 0; i < iterations; i++ {
-		lock.Lock()
-		value++
-		lock.Unlock()
-	}
-}
-
 func main() {
-	if len(os.Args) < 5 {
-		fmt.Println("Uso: go run main.go <quantidade-threads> <vezes-execucao> <critical-load> <lock-type>")
-		os.Exit(1)
-	}
-
-	threads, err := strconv.Atoi(os.Args[1])
+	file, err := os.Create("csv_table.csv")
 	if err != nil {
-		fmt.Println("Erro ao converter a quantidade de threads:", err)
-		os.Exit(1)
+		log.Fatalln("failed to open file", err)
 	}
+	defer file.Close()
+	csvWriter := csvEncoder.NewWriter(file)
+	defer csvWriter.Flush()
 
-	executions, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		fmt.Println("Erro ao converter a quantidade de execuções:", err)
-		os.Exit(1)
+	csv := [][]string{
+		{"num_threads", "executions", "critical_load", "lock_type", "time"},
 	}
+	threads := []int{1, 10, 100}
+	executions := []int{1, 10, 100}
+	criticalLoad := []int{1, 10, 100}
+	lockType := []string{"TAS", "TTAS"}
 
-	criticalLoad, err := strconv.Atoi(os.Args[3])
-	if err != nil {
-		fmt.Println("Erro ao converter o valor de critical load:", err)
-		os.Exit(1)
-	}
-
-	lockType := os.Args[4]
-
-	value = 0
-
-	var lock Lock
-
-	switch lockType {
-	case "TAS":
-		lock = &TASLock{}
-	case "TTAS":
-		lock = &TTASLock{}
-	default:
-		fmt.Println("Lock nao especificado")
-		os.Exit(1)
-	}
-
-	var wg sync.WaitGroup
-	wg.Add(threads)
-
-	for t := 0; t < threads; t++ {
-		go func() {
-			defer wg.Done()
-			for i := 0; i < executions; i++ {
-				criticalSection(lock, criticalLoad)
+	for _, thread := range threads {
+		for _, exec := range executions {
+			for _, load := range criticalLoad {
+				for _, lock := range lockType {
+					resultTime := Run(thread, exec, load, lock)
+					row := []string{strconv.Itoa(thread), strconv.Itoa(exec), strconv.Itoa(load), lock, resultTime.String()}
+					csv = append(csv, row)
+				}
 			}
-		}()
+		}
 	}
 
-	wg.Wait()
-
-	fmt.Println("Valor final:", value)
+	defer csvWriter.Flush()
+	csvWriter.WriteAll(csv)
 }
