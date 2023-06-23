@@ -19,8 +19,8 @@ func main() {
 	csv := [][]string{
 		{"num_threads", "executions", "critical_load", "lock_type", "time"},
 	}
-	threads := []int{1, 10, 100}
-	executions := []int{1, 10, 100}
+	threads := []int{10, 100, 1000}
+	executions := []int{10, 100, 1000}
 	criticalLoad := []int{1, 10, 100}
 	lockType := []string{"TAS", "TTAS"}
 

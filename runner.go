@@ -10,11 +10,11 @@ import (
 var value int
 
 func criticalSection(lock Lock, iterations int) {
+	lock.Lock()
 	for i := 0; i < iterations; i++ {
-		lock.Lock()
 		value++
-		lock.Unlock()
 	}
+	lock.Unlock()
 }
 
 func Run(threads int, executions int, criticalLoad int, lockType string) time.Duration {
