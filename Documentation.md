@@ -1,4 +1,4 @@
-# Comparação de desempenho entre TAS e TTAAS
+# Comparação de desempenho entre TAS e TTAS
 
 # Objetivo
 O objetivo do projeto é comparar o desempenho entre os dois tipos de lock, para isso iremos considerar 3 variáveis(número de threads, número de execuções e carga) e para cada variável vamos considerar 3 valores(10, 100 e 1000).
