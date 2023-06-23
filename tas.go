@@ -8,7 +8,6 @@ type TASLock struct {
 
 func (l *TASLock) Lock() {
 	for atomic.SwapInt32(&l.locked, 1) == 1 {
-		// Espera ocupada
 	}
 }
 

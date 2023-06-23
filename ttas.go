@@ -9,7 +9,6 @@ type TTASLock struct {
 func (l *TTASLock) Lock() {
 	for {
 		for atomic.LoadInt32(&l.locked) == 1 {
-			// Espera ocupada
 		}
 		if atomic.SwapInt32(&l.locked, 1) == 0 {
 			return

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"sync"
 	"time"
 )
 
-var value int
+var value int64
 
 func criticalSection(lock Lock, iterations int) {
 	lock.Lock()
@@ -17,21 +15,9 @@ func criticalSection(lock Lock, iterations int) {
 	lock.Unlock()
 }
 
-func Run(threads int, executions int, criticalLoad int, lockType string) time.Duration {
+func Run(threads int, executions int, load int, lock Lock) time.Duration {
 	value = 0
 	initialTime := time.Now()
-
-	var lock Lock
-
-	switch lockType {
-	case "TAS":
-		lock = &TASLock{}
-	case "TTAS":
-		lock = &TTASLock{}
-	default:
-		fmt.Println("Lock nao especificado")
-		os.Exit(1)
-	}
 
 	var wg sync.WaitGroup
 	wg.Add(threads)
@@ -40,13 +26,12 @@ func Run(threads int, executions int, criticalLoad int, lockType string) time.Du
 		go func() {
 			defer wg.Done()
 			for i := 0; i < executions; i++ {
-				criticalSection(lock, criticalLoad)
+				criticalSection(lock, load)
 			}
 		}()
 	}
 
 	wg.Wait()
 
-	fmt.Println("Valor final:", value)
 	return time.Since(initialTime)
 }
