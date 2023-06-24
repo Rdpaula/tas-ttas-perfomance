@@ -19,3 +19,6 @@ Após fazer os testes, podemos concluir que para valores pequenos de número de 
 ```bash
 $ make run
 ```
+
+## Resultados
+Para conferir os resultados basta acessar o notebook graphic_generator.
